@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trilhas & Aventura</title>
+</head>
+<body>
+    <h1>Trilhas & Aventura</h1>
+    <p>Alugue equipamentos e explore trilhas incríveis.</p>
+
+    <h2>Equipamentos e trilhas disponíveis</h2>
+
+    {% for opcao in opcoes %}
+        <div>
+            <h3>{{ opcao.titulo }}</h3>
+            <p>{{ opcao.descricao }}</p>
+        </div>
+    {% endfor %}
+
+</body>
+</html>
