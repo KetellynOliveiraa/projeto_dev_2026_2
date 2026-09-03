@@ -1,9 +1,8 @@
 from flask import Flask, render_template, request, redirect, url_for
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user, UserMixin
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
 from werkzeug.security import check_password_hash
-
+from datetime import datetime
 import os
 from dotenv import load_dotenv
 
@@ -108,6 +107,7 @@ def enviar():
 def sucesso():
     return render_template('sucesso.html')
 
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     erro = None
@@ -126,6 +126,7 @@ def login():
 
     return render_template('login.html', erro=erro)
 
+
 @app.route('/painel')
 @login_required
 def painel():
@@ -138,6 +139,62 @@ def painel():
 def logout():
     logout_user()
     return redirect(url_for('login'))
+
+
+@app.route('/painel/registro/<int:registro_id>/status', methods=['POST'])
+@login_required
+def atualizar_status(registro_id):
+    registro = Registro.query.get_or_404(registro_id)
+    novo_status = request.form.get('status')
+
+    if novo_status in ['confirmado', 'cancelado']:
+        registro.status = novo_status
+        db.session.commit()
+
+    return redirect(url_for('painel'))
+
+
+@app.route('/painel/opcoes')
+@login_required
+def listar_opcoes():
+    opcoes = Opcao.query.all()
+    return render_template('opcoes.html', opcoes=opcoes)
+
+
+@app.route('/painel/opcoes/nova', methods=['GET', 'POST'])
+@app.route('/painel/opcoes/<int:opcao_id>/editar', methods=['GET', 'POST'])
+@login_required
+def form_opcao(opcao_id=None):
+    opcao = Opcao.query.get(opcao_id) if opcao_id else None
+    erros = []
+
+    if request.method == 'POST':
+        titulo = request.form.get('titulo', '').strip()
+        descricao = request.form.get('descricao', '').strip()
+
+        if not titulo:
+            erros.append('O título é obrigatório.')
+
+        if not erros:
+            if opcao:
+                opcao.titulo = titulo
+                opcao.descricao = descricao
+            else:
+                opcao = Opcao(titulo=titulo, descricao=descricao, ativa=True)
+                db.session.add(opcao)
+
+            db.session.commit()
+            return redirect(url_for('listar_opcoes'))
+
+    return render_template('opcao_form.html', erros=erros, opcao=opcao)
+
+@app.route('/painel/opcoes/<int:opcao_id>/toggle', methods=['POST'])
+@login_required
+def toggle_opcao(opcao_id):
+    opcao = Opcao.query.get_or_404(opcao_id)
+    opcao.ativa = not opcao.ativa
+    db.session.commit()
+    return redirect(url_for('listar_opcoes'))
 
 
 if __name__ == '__main__':

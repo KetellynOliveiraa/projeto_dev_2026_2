@@ -27,7 +27,19 @@
                     <td>{{ registro.email }}</td>
                     <td>{{ registro.opcao.titulo }}</td>
                     <td>{{ registro.data }}</td>
-                    <td>{{ registro.status }}</td>
+                                        <td>
+                        {{ registro.status }}
+                        {% if registro.status == 'pendente' %}
+                            <form method="POST" action="{{ url_for('atualizar_status', registro_id=registro.id) }}" style="display:inline;">
+                                <input type="hidden" name="status" value="confirmado">
+                                <button type="submit">Confirmar</button>
+                            </form>
+                            <form method="POST" action="{{ url_for('atualizar_status', registro_id=registro.id) }}" style="display:inline;">
+                                <input type="hidden" name="status" value="cancelado">
+                                <button type="submit">Cancelar</button>
+                            </form>
+                        {% endif %}
+                    </td>
                     <td>{{ registro.criado_em.strftime('%d/%m/%Y %H:%M') }}</td>
                 </tr>
             {% endfor %}

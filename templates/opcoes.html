@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciar opções</title>
+</head>
+<body>
+    <h1>Gerenciar equipamentos e trilhas</h1>
+    <a href="{{ url_for('painel') }}">Voltar ao painel</a>
+    <br>
+    <a href="{{ url_for('form_opcao') }}">+ Nova opção</a>
+
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Título</th>
+                <th>Descrição</th>
+                <th>Status</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for opcao in opcoes %}
+                <tr>
+                    <td>{{ opcao.titulo }}</td>
+                    <td>{{ opcao.descricao }}</td>
+                    <td>{{ 'Ativa' if opcao.ativa else 'Inativa' }}</td>
+                                        <td>
+                        <a href="{{ url_for('form_opcao', opcao_id=opcao.id) }}">Editar</a>
+                        <form method="POST" action="{{ url_for('toggle_opcao', opcao_id=opcao.id) }}" style="display:inline;">
+                            <button type="submit">{{ 'Desativar' if opcao.ativa else 'Ativar' }}</button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

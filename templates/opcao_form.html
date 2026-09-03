@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ 'Editar opção' if opcao else 'Nova opção' }}</title>
+</head>
+<body>
+    <h1>{{ 'Editar opção' if opcao else 'Nova opção' }}</h1>
+
+    {% if erros %}
+        <ul style="color: red;">
+            {% for erro in erros %}
+                <li>{{ erro }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    <form method="POST">
+        <label>Título:</label>
+        <input type="text" name="titulo" value="{{ opcao.titulo if opcao else '' }}" required>
+
+        <label>Descrição:</label>
+        <textarea name="descricao">{{ opcao.descricao if opcao else '' }}</textarea>
+
+        <button type="submit">Salvar</button>
+    </form>
+
+    <a href="{{ url_for('listar_opcoes') }}">Cancelar</a>
+</body>
+</html>
