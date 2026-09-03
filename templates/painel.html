@@ -8,6 +8,23 @@
 <body>
     <h1>Painel administrativo</h1>
     <a href="{{ url_for('logout') }}">Sair</a>
+    <br>
+    <a href="{{ url_for('listar_opcoes') }}">Gerenciar opções</a>
+
+    <form method="GET">
+        <label>Status:</label>
+        <select name="status">
+            <option value="" {{ 'selected' if status_filtro == '' }}>Todos</option>
+            <option value="pendente" {{ 'selected' if status_filtro == 'pendente' }}>Pendente</option>
+            <option value="confirmado" {{ 'selected' if status_filtro == 'confirmado' }}>Confirmado</option>
+            <option value="cancelado" {{ 'selected' if status_filtro == 'cancelado' }}>Cancelado</option>
+        </select>
+
+        <label>Buscar (nome ou email):</label>
+        <input type="text" name="busca" value="{{ busca }}">
+
+        <button type="submit">Filtrar</button>
+    </form>
 
     <table border="1">
         <thead>
@@ -21,13 +38,13 @@
             </tr>
         </thead>
         <tbody>
-            {% for registro in registros %}
+            {% for registro in paginacao.items %}
                 <tr>
                     <td>{{ registro.nome }}</td>
                     <td>{{ registro.email }}</td>
                     <td>{{ registro.opcao.titulo }}</td>
                     <td>{{ registro.data }}</td>
-                                        <td>
+                    <td>
                         {{ registro.status }}
                         {% if registro.status == 'pendente' %}
                             <form method="POST" action="{{ url_for('atualizar_status', registro_id=registro.id) }}" style="display:inline;">
@@ -45,5 +62,17 @@
             {% endfor %}
         </tbody>
     </table>
+
+    <p>
+        Página {{ paginacao.page }} de {{ paginacao.pages }}
+
+        {% if paginacao.has_prev %}
+            <a href="{{ url_for('painel', pagina=paginacao.prev_num, status=status_filtro, busca=busca) }}">Anterior</a>
+        {% endif %}
+
+        {% if paginacao.has_next %}
+            <a href="{{ url_for('painel', pagina=paginacao.next_num, status=status_filtro, busca=busca) }}">Próxima</a>
+        {% endif %}
+    </p>
 </body>
 </html>

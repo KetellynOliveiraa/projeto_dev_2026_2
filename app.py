@@ -130,9 +130,27 @@ def login():
 @app.route('/painel')
 @login_required
 def painel():
-    registros = Registro.query.order_by(Registro.criado_em.desc()).all()
-    return render_template('painel.html', registros=registros)
+    status_filtro = request.args.get('status', '')
+    busca = request.args.get('busca', '').strip()
+    pagina = request.args.get('pagina', 1, type=int)
 
+    query = Registro.query
+
+    if status_filtro:
+        query = query.filter(Registro.status == status_filtro)
+
+    if busca:
+        termo = f'%{busca}%'
+        query = query.filter(
+            (Registro.nome.ilike(termo)) | (Registro.email.ilike(termo))
+        )
+
+    query = query.order_by(Registro.criado_em.desc())
+
+    paginacao = query.paginate(page=pagina, per_page=10, error_out=False)
+
+    return render_template('painel.html', paginacao=paginacao,
+                            status_filtro=status_filtro, busca=busca)
 
 @app.route('/logout')
 @login_required
