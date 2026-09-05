@@ -4,19 +4,80 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trilhas & Aventura</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h1>Trilhas & Aventura</h1>
-    <p>Alugue equipamentos e explore trilhas incríveis.</p>
 
-    <h2>Equipamentos e trilhas disponíveis</h2>
-
-    {% for opcao in opcoes %}
-        <div>
-            <h3>{{ opcao.titulo }}</h3>
-            <p>{{ opcao.descricao }}</p>
+    <nav class="nav-principal">
+        <span class="nav-marca">Trilhas & Aventura</span>
+        <div class="nav-links">
+            <a href="#opcoes">Equipamentos</a>
+            <a href="#como-funciona">Como funciona</a>
+            <a href="{{ url_for('enviar') }}" class="destaque">Solicitar aluguel</a>
+            <a href="{{ url_for('login') }}" class="nav-login">Entrar</a>
         </div>
-    {% endfor %}
+    </nav>
+
+    <section class="hero">
+        <div class="hero-conteudo">
+            <h1>Sua próxima trilha começa com o equipamento certo</h1>
+            <p>Alugue barracas, mochilas e itens de trilha por dia ou fim de semana. Sem comprar o que você só vai usar duas vezes por ano.</p>
+            <a href="#opcoes" class="botao-hero">Ver equipamentos</a>
+        </div>
+    </section>
+
+    <div class="container">
+
+        <section id="opcoes">
+            <h2>Equipamentos e trilhas disponíveis</h2>
+            <div class="grid-opcoes">
+                {% for opcao in opcoes %}
+                    <div class="card">
+                        <div class="card-foto">
+                            <span>{{ opcao.icone }}</span>
+                        </div>
+                        <div class="card-conteudo">
+                            <h3>{{ opcao.titulo }}</h3>
+                            <p>{{ opcao.descricao }}</p>
+                            <span class="card-tag">Disponível</span>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section id="como-funciona" class="como-funciona">
+            <h2>Como funciona</h2>
+            <div class="passos">
+                <div class="passo">
+                    <div class="passo-numero">1</div>
+                    <h3>Escolha</h3>
+                    <p>Veja os equipamentos e trilhas disponíveis acima.</p>
+                </div>
+                <div class="passo">
+                    <div class="passo-numero">2</div>
+                    <h3>Solicite</h3>
+                    <p>Preencha o formulário com seus dados e a data desejada.</p>
+                </div>
+                <div class="passo">
+                    <div class="passo-numero">3</div>
+                    <h3>Confirme</h3>
+                    <p>Nossa equipe confirma sua reserva e entra em contato.</p>
+                </div>
+            </div>
+
+            <p class="cta-final">
+                <a href="{{ url_for('enviar') }}" class="botao-hero botao-escuro">Solicitar aluguel agora</a>
+            </p>
+        </section>
+
+    </div>
+
+    <footer>
+        <p>Trilhas & Aventura — equipamentos para quem prefere estar lá fora.</p>
+    </footer>
 
 </body>
 </html>

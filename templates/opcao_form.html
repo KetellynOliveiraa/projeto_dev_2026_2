@@ -2,29 +2,38 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ 'Editar opção' if opcao else 'Nova opção' }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h1>{{ 'Editar opção' if opcao else 'Nova opção' }}</h1>
+    <div class="container">
+        <h1>{{ 'Editar opção' if opcao else 'Nova opção' }}</h1>
 
-    {% if erros %}
-        <ul style="color: red;">
-            {% for erro in erros %}
-                <li>{{ erro }}</li>
-            {% endfor %}
-        </ul>
-    {% endif %}
+        {% if erros %}
+            <div class="erros">
+                <ul>
+                    {% for erro in erros %}
+                        <li>{{ erro }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
 
-    <form method="POST">
-        <label>Título:</label>
-        <input type="text" name="titulo" value="{{ opcao.titulo if opcao else '' }}" required>
+        <form method="POST">
+            <label>Título:</label>
+            <input type="text" name="titulo" value="{{ opcao.titulo if opcao else '' }}" required>
 
-        <label>Descrição:</label>
-        <textarea name="descricao">{{ opcao.descricao if opcao else '' }}</textarea>
+            <label>Descrição:</label>
+            <textarea name="descricao">{{ opcao.descricao if opcao else '' }}</textarea>
 
-        <button type="submit">Salvar</button>
-    </form>
+            <label>Ícone (emoji):</label>
+            <input type="text" name="icone" value="{{ opcao.icone if opcao else '🎒' }}" maxlength="4">
 
-    <a href="{{ url_for('listar_opcoes') }}">Cancelar</a>
+            <button type="submit">Salvar</button>
+        </form>
+
+        <a href="{{ url_for('listar_opcoes') }}">Cancelar</a>
+    </div>
 </body>
 </html>

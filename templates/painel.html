@@ -4,75 +4,95 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Painel administrativo</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h1>Painel administrativo</h1>
-    <a href="{{ url_for('logout') }}">Sair</a>
-    <br>
-    <a href="{{ url_for('listar_opcoes') }}">Gerenciar opções</a>
+    <div class="container">
+        <h1>Painel administrativo</h1>
+        <nav>
+            <a href="{{ url_for('listar_opcoes') }}">Gerenciar opções</a>
+            <a href="{{ url_for('logout') }}">Sair</a>
+        </nav>
 
-    <form method="GET">
-        <label>Status:</label>
-        <select name="status">
-            <option value="" {{ 'selected' if status_filtro == '' }}>Todos</option>
-            <option value="pendente" {{ 'selected' if status_filtro == 'pendente' }}>Pendente</option>
-            <option value="confirmado" {{ 'selected' if status_filtro == 'confirmado' }}>Confirmado</option>
-            <option value="cancelado" {{ 'selected' if status_filtro == 'cancelado' }}>Cancelado</option>
-        </select>
+        {% with mensagens = get_flashed_messages() %}
+            {% if mensagens %}
+                <div class="flash">
+                    {% for m in mensagens %}
+                        <p>{{ m }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
 
-        <label>Buscar (nome ou email):</label>
-        <input type="text" name="busca" value="{{ busca }}">
+        <form method="GET" class="filtro-form">
+            <div>
+                <label>Status:</label>
+                <select name="status">
+                    <option value="" {{ 'selected' if status_filtro == '' }}>Todos</option>
+                    <option value="pendente" {{ 'selected' if status_filtro == 'pendente' }}>Pendente</option>
+                    <option value="confirmado" {{ 'selected' if status_filtro == 'confirmado' }}>Confirmado</option>
+                    <option value="cancelado" {{ 'selected' if status_filtro == 'cancelado' }}>Cancelado</option>
+                </select>
+            </div>
 
-        <button type="submit">Filtrar</button>
-    </form>
+            <div>
+                <label>Buscar (nome ou email):</label>
+                <input type="text" name="busca" value="{{ busca }}">
+            </div>
 
-    <table border="1">
-        <thead>
-            <tr>
-                <th>Nome</th>
-                <th>Email</th>
-                <th>Equipamento/Trilha</th>
-                <th>Data</th>
-                <th>Status</th>
-                <th>Criado em</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for registro in paginacao.items %}
+            <button type="submit">Filtrar</button>
+        </form>
+
+        <table>
+            <thead>
                 <tr>
-                    <td>{{ registro.nome }}</td>
-                    <td>{{ registro.email }}</td>
-                    <td>{{ registro.opcao.titulo }}</td>
-                    <td>{{ registro.data }}</td>
-                    <td>
-                        {{ registro.status }}
-                        {% if registro.status == 'pendente' %}
-                            <form method="POST" action="{{ url_for('atualizar_status', registro_id=registro.id) }}" style="display:inline;">
-                                <input type="hidden" name="status" value="confirmado">
-                                <button type="submit">Confirmar</button>
-                            </form>
-                            <form method="POST" action="{{ url_for('atualizar_status', registro_id=registro.id) }}" style="display:inline;">
-                                <input type="hidden" name="status" value="cancelado">
-                                <button type="submit">Cancelar</button>
-                            </form>
-                        {% endif %}
-                    </td>
-                    <td>{{ registro.criado_em.strftime('%d/%m/%Y %H:%M') }}</td>
+                    <th>Nome</th>
+                    <th>Email</th>
+                    <th>Equipamento/Trilha</th>
+                    <th>Data</th>
+                    <th>Status</th>
+                    <th>Criado em</th>
                 </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                {% for registro in paginacao.items %}
+                    <tr>
+                        <td>{{ registro.nome }}</td>
+                        <td>{{ registro.email }}</td>
+                        <td>{{ registro.opcao.titulo }}</td>
+                        <td>{{ registro.data }}</td>
+                                                <td>
+                            <div class="status-actions">
+                                <span class="badge badge-{{ registro.status }}">{{ registro.status }}</span>
+                                {% if registro.status == 'pendente' %}
+                                    <form method="POST" action="{{ url_for('atualizar_status', registro_id=registro.id) }}" class="acao-form">
+                                        <input type="hidden" name="status" value="confirmado">
+                                        <button type="submit">Confirmar</button>
+                                    </form>
+                                    <form method="POST" action="{{ url_for('atualizar_status', registro_id=registro.id) }}" class="acao-form">
+                                        <input type="hidden" name="status" value="cancelado">
+                                        <button type="submit">Cancelar</button>
+                                    </form>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td>{{ registro.criado_em.strftime('%d/%m/%Y %H:%M') }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
 
-    <p>
-        Página {{ paginacao.page }} de {{ paginacao.pages }}
+        <p>
+            Página {{ paginacao.page }} de {{ paginacao.pages }}
 
-        {% if paginacao.has_prev %}
-            <a href="{{ url_for('painel', pagina=paginacao.prev_num, status=status_filtro, busca=busca) }}">Anterior</a>
-        {% endif %}
+            {% if paginacao.has_prev %}
+                <a href="{{ url_for('painel', pagina=paginacao.prev_num, status=status_filtro, busca=busca) }}">Anterior</a>
+            {% endif %}
 
-        {% if paginacao.has_next %}
-            <a href="{{ url_for('painel', pagina=paginacao.next_num, status=status_filtro, busca=busca) }}">Próxima</a>
-        {% endif %}
-    </p>
+            {% if paginacao.has_next %}
+                <a href="{{ url_for('painel', pagina=paginacao.next_num, status=status_filtro, busca=busca) }}">Próxima</a>
+            {% endif %}
+        </p>
+    </div>
 </body>
 </html>

@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user, UserMixin
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import check_password_hash
@@ -28,6 +28,7 @@ class Opcao(db.Model):
     titulo = db.Column(db.String(100), nullable=False)
     descricao = db.Column(db.String(300))
     ativa = db.Column(db.Boolean, default=True)
+    icone = db.Column(db.String(10), default='🎒')
 
 class Registro(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -152,6 +153,7 @@ def painel():
     return render_template('painel.html', paginacao=paginacao,
                             status_filtro=status_filtro, busca=busca)
 
+
 @app.route('/logout')
 @login_required
 def logout():
@@ -168,6 +170,7 @@ def atualizar_status(registro_id):
     if novo_status in ['confirmado', 'cancelado']:
         registro.status = novo_status
         db.session.commit()
+        flash(f'Registro {novo_status} com sucesso.')
 
     return redirect(url_for('painel'))
 
@@ -189,6 +192,7 @@ def form_opcao(opcao_id=None):
     if request.method == 'POST':
         titulo = request.form.get('titulo', '').strip()
         descricao = request.form.get('descricao', '').strip()
+        icone = request.form.get('icone', '🎒').strip()
 
         if not titulo:
             erros.append('O título é obrigatório.')
@@ -197,14 +201,17 @@ def form_opcao(opcao_id=None):
             if opcao:
                 opcao.titulo = titulo
                 opcao.descricao = descricao
+                opcao.icone = icone
             else:
-                opcao = Opcao(titulo=titulo, descricao=descricao, ativa=True)
+                opcao = Opcao(titulo=titulo, descricao=descricao, ativa=True, icone=icone)
                 db.session.add(opcao)
 
             db.session.commit()
+            flash('Opção salva com sucesso.')
             return redirect(url_for('listar_opcoes'))
 
     return render_template('opcao_form.html', erros=erros, opcao=opcao)
+
 
 @app.route('/painel/opcoes/<int:opcao_id>/toggle', methods=['POST'])
 @login_required
@@ -212,6 +219,7 @@ def toggle_opcao(opcao_id):
     opcao = Opcao.query.get_or_404(opcao_id)
     opcao.ativa = not opcao.ativa
     db.session.commit()
+    flash('Opção atualizada com sucesso.')
     return redirect(url_for('listar_opcoes'))
 
 
