@@ -14,13 +14,13 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
 
 db = SQLAlchemy(app)
 
-login_manager = LoginManager()
-login_manager.init_app(app)
-login_manager.login_view = 'login'
+gerenciador_login = LoginManager()
+gerenciador_login.init_app(app)
+gerenciador_login.login_view = 'login'
 
-@login_manager.user_loader
-def load_user(user_id):
-    return Admin.query.get(int(user_id))
+@gerenciador_login.user_loader
+def carregar_usuario(user_id):
+    return Administrador.query.get(int(user_id))
 
 
 class Opcao(db.Model):
@@ -43,7 +43,7 @@ class Registro(db.Model):
 
     opcao = db.relationship('Opcao', backref='registros')
 
-class Admin(db.Model, UserMixin):
+class Administrador(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     senha_hash = db.Column(db.String(200), nullable=False)
@@ -117,10 +117,10 @@ def login():
         username = request.form.get('username', '').strip()
         senha = request.form.get('senha', '')
 
-        admin = Admin.query.filter_by(username=username).first()
+        administrador = Administrador.query.filter_by(username=username).first()
 
-        if admin and check_password_hash(admin.senha_hash, senha):
-            login_user(admin)
+        if administrador and check_password_hash(administrador.senha_hash, senha):
+            login_user(administrador)
             return redirect(url_for('painel'))
         else:
             erro = 'Usuário ou senha inválidos.'
@@ -135,20 +135,20 @@ def painel():
     busca = request.args.get('busca', '').strip()
     pagina = request.args.get('pagina', 1, type=int)
 
-    query = Registro.query
+    consulta = Registro.query
 
     if status_filtro:
-        query = query.filter(Registro.status == status_filtro)
+        consulta = consulta.filter(Registro.status == status_filtro)
 
     if busca:
         termo = f'%{busca}%'
-        query = query.filter(
+        consulta = consulta.filter(
             (Registro.nome.ilike(termo)) | (Registro.email.ilike(termo))
         )
 
-    query = query.order_by(Registro.criado_em.desc())
+    consulta = consulta.order_by(Registro.criado_em.desc())
 
-    paginacao = query.paginate(page=pagina, per_page=10, error_out=False)
+    paginacao = consulta.paginate(page=pagina, per_page=10, error_out=False)
 
     return render_template('painel.html', paginacao=paginacao,
                             status_filtro=status_filtro, busca=busca)
